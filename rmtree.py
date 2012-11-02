@@ -155,7 +155,7 @@ class Tree(object):
             if type(value) is Tree:
                 string += value.to_listui_html(level=level+1)
             else:
-                string += "<tr><td>%d</td><td>%s</td><td>%s</td>" % \
+                string += "<tr><td>%d</td><td>%s</td><td>%s</td></tr>" % \
                             (id(value), str(value), str(value))
         
         if level == 0:
