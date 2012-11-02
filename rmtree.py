@@ -47,20 +47,32 @@ from sys import argv, stderr, exit
 class Tree(object):
     '''Simple tree data structure'''
     def __init__(self, name='', parent=None):
-        '''Create new tree data structure'''
+        '''Create new tree data structure. Two optional initialization
+        parameters: name and parent. name is just a property and can be set
+        whenever. It is the node lable (keys in self.__branches dict are the
+        edge labels; values that are strings indicate leaves). parent is a
+        pointer to the parent Tree, which is necessary for traversal. Note
+        that it is generally best to leave this blank upon initialization, as
+        the parent attribute is automatically assigned when new subtrees are
+        appended as children. The status of root-node is indicated by a None-
+        type parent.'''
         self.__branches = dict()
         self.__parent = parent
         self.name = name
 
     def __getitem__(self, key):
-        '''Subscripts point to branches. Return None on invalid access.'''
+        '''Keys are aliases of self.__branches. Nonexistent keys return None.'''
         try:
             return self.__branches[key]
         except KeyError:
             return None
 
     def __setitem__(self, key, value):
-        '''Subscripts point to branches: 0 ... n, left to right.'''
+        '''Keys aliased to self.__branches. Make sure type is either a Tree
+        or a string (can be unicode); i.e., type is either a subtree or
+        a leaf. Raise TypeError if anything else is given as value.
+        NB When a new tree is added here (as a subtree) its parent (i.e.,
+        the working tree) is automatically assigned.'''
         if type(value) is Tree:
             value.set_parent(self)
         elif type(value) is not str and type(value) is not unicode:
@@ -68,7 +80,7 @@ class Tree(object):
         self.__branches[key] = value
 
     def __contains__(self, key):
-        '''Test whether tree contains branch'''
+        '''Test whether tree contains branch (by name)'''
         return self.__branches.has_key(key)
 
     def get_parent(self):
@@ -80,7 +92,7 @@ class Tree(object):
         self.__parent = parent
 
     def get_root(self):
-        '''Return the root node'''
+        '''Return the tree's rootnode'''
         root = self
         if root.get_parent() is not None:
             return root.get_parent().get_root()
