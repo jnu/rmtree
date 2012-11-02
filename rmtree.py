@@ -91,7 +91,6 @@ class Tree(object):
         compliant with the InfoVis JS tree visualization libraries.
         Specify rootname to provide a custom label for root node.'''
         json_template = '{"id": %d, "name": "%s", "children": ['
-        #json = json_template % (id(self), self.name)
         json = ""
         if indent == 0:
             json = json_template % (id(self), rootname)
@@ -103,10 +102,7 @@ class Tree(object):
             else:
                 value = json_template % (id(value), str(value))
                 value += ']}'
-                #value += ']},'
             json += '%s]},' % value
-            #json += '%s' % value
-        #json = '%s]}' % json[:-1]
         if indent== 0:
             json = '%s]}' % json[:-1]
         else:
@@ -218,6 +214,7 @@ if __name__=='__main__':
         exit(1)
     try:
         with codecs.open(argv[1], 'r', 'utf-8') as fh:
+            # Transduce to infovis JSON and print to stdout, just for example.
             tree = parse_rmtree(fh)
             html = tree.to_infovis_json()
             print html
