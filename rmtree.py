@@ -13,6 +13,7 @@ Output -- Supported Visualizations
     are supported:
         1. ListUI JS Library       http://listui.com/?p=84
         2. InfoVis JS Toolkit      http://philogb.github.com/jit/
+        3. d3 v2                   http://d3js.org/
 
 Usage
     $ python rmtree.py rmtree.txt 
@@ -28,8 +29,8 @@ About
     Script stores this decision tree internally as a Tree object. The Tree
     class, defined in this file, provides multiple output methods: simple
     JSON (which is returned by Tree.__repr__() and Tree.__str__()), and also
-    the JSON format used by the InfoVis Toolkit, an attractive tree
-    visualization library for JS.
+    other JSON formats used by common JS visualization libraries (see above
+    for currently implemented formats).
 
 Classes
     Tree    Simple Tree data structure. call help() for more information.
@@ -98,27 +99,43 @@ class Tree(object):
             return root.get_parent().get_root()
         return root
 
-    def to_infovis_json(self, indent=0, rootname='Root'):
-        '''Return a more advanced JSON representation of the tree that is
-        compliant with the InfoVis JS tree visualization libraries.
-        Specify rootname to provide a custom label for root node.'''
-        json_template = '{"id": %d, "name": "%s", "children": ['
+    def json(self, style='d3', rootname='Root', indent=0):
+        '''Output the Tree in a specified JSON format used by common
+        visualization libraries. Currently implemented JIT and d3 (v2)'''
+        templates = { 'jit' : '{"id": %d, "name": "%s", "children": [',
+                      'd3' : '{"name": "%s", "children": [' }
+        if style not in templates.keys():
+            raise KeyError
         json = ""
+        json_template = templates[style]
         if indent == 0:
-            json = json_template % (id(self), rootname)
+            json = ""
+            if style=='jit':
+                json = json_template % (id(self), rootname)
+            else:
+                json = json_template % rootname
         for key, value in self.__branches.iteritems():
             # Create node for 'key' (an 'edge' in a normal tree)
-            json += json_template % (id(key), self.name+": "+key)
-            if type(value) is Tree:
-                value = value.to_infovis_json(indent=indent+1)
+            if style=='jit':
+                json += json_template % (id(key), self.name+": "+key)
             else:
-                value = json_template % (id(value), str(value))
+                json += json_template % (self.name+": "+key)
+            if type(value) is Tree:
+                value = value.json(style, indent=indent+1)
+            else:
+                if style=='jit':
+                    value = json_template % (id(value), str(value))
+                else:
+                    value = json_template % str(value)
                 value += ']}'
             json += '%s]},' % value
-        if indent== 0:
+        if indent==0:
             json = '%s]}' % json[:-1]
         else:
             json = json[:-1]
+        if style=='d3':
+            substr = '"size": %d' % id(json)
+            json = re.sub(r'"children"\s*\:\s*\[\]', substr, json)
         return json
 
     def __repr__(self, indent=0):
@@ -226,10 +243,8 @@ if __name__=='__main__':
         exit(1)
     try:
         with codecs.open(argv[1], 'r', 'utf-8') as fh:
-            # Transduce to infovis JSON and print to stdout, just for example.
+            # Parse RM Tree store as tree variable
             tree = parse_rmtree(fh)
-            html = tree.to_infovis_json()
-            print html
     except IOError:
         print >>stderr, "Error opening file `%s`" % argv[1]
         print >>stderr, __doc__
