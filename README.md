@@ -14,6 +14,7 @@ So far the formats expected by the following visualization libraries
 are supported:
 * ListUI JS Library       http://listui.com/?p=84>
 * InfoVis JS Toolkit      http://philogb.github.com/jit/
+* d3 JS Vis Library       http://d3js.org/
 
 ## Usage
 
@@ -30,8 +31,7 @@ script.
 Script stores this decision tree internally as a Tree object. The Tree
 class, defined in this file, provides multiple output methods: simple
 JSON (which is returned by Tree.__repr__() and Tree.__str__()), and also
-the JSON format used by the InfoVis Toolkit, an attractive tree visualization
-library for JS.
+a couple of JSON formats expected by popular visualization libaries (see above).
 
 # Classes
 * Tree    Simple Tree data structure. call help() for more information.
